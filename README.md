@@ -60,7 +60,7 @@
 
 > Release 页里带 `v*` tag 的构建也会自动出包。
 
-### 路径 B：本地构建（需要 JDK 17 + Android SDK 34）
+### 路径 B：本地构建（需要 JDK 17+ + Android SDK 34）
 
 ```bash
 # 1) 可选：从上游拉取并转码动画（需要 node + ffmpeg）
@@ -68,10 +68,11 @@ node tools/fetch-and-transcode.mjs
 node tools/verify-assets.mjs
 
 # 2) 指定 SDK 路径
+#    Windows 注意写成转义形式：sdk.dir=E\:\\android-sdk
 echo "sdk.dir=/path/to/android-sdk" > local.properties
 
 # 3) 构建
-./gradlew :app:assembleDebug
+gradle :app:assembleDebug
 # 产物：app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -80,6 +81,19 @@ echo "sdk.dir=/path/to/android-sdk" > local.properties
 ```bash
 gradle wrapper --gradle-version 8.7
 ```
+
+> **实测过的版本组合**（能编出可安装的包，不是猜的）：
+> Gradle 8.7 · AGP 8.5.2 · Kotlin 1.9.24 · JDK 17 与 JDK 21 均可 · compileSdk 34 / build-tools 34.0.0
+ 
+### 构建排错：四个真踩过的坑
+
+| 现象 | 原因 | 处理 |
+| --- | --- | --- |
+| CI 报 `Warning: Failed to find package 'tools'` + `sdkmanager failed with exit code 1` | 老版 SDK Tools 包已从 Google 仓库下架，而 `android-actions/setup-android@v3` 内部仍执行 `sdkmanager tools` | 已改用「复用 runner 预装 SDK + 手动装 `platforms;android-34`」的步骤，见 `.github/workflows/android.yml` |
+| `Your project path contains non-ASCII characters` | AGP 默认拒绝中文路径 | `gradle.properties` 里已加 `android.overridePathCheck=true`；但**仍建议把工程放在纯英文路径**（本工程就是这么放到 `operation/dsh-pet-phone` 的） |
+| 单测报 `ClassNotFoundException: com.dshpet.phone.PhysicsTest`（中文路径下） | Windows 上 Gradle 测试工作进程读不到非 ASCII 路径下的 class | 换到 ASCII 路径即消失；这是路径问题，不是代码问题 |
+| `Unresolved reference: util`（指向 `app/build.gradle.kts`） | Kotlin DSL 里 `java` 被 Gradle 的 `java {}` 扩展占用，`java.util.Properties` 解析不了 | 文件顶部 `import java.util.Properties`，正文写 `Properties()` |
+| `Could not connect to Kotlin compile daemon` / `CreateProcess error=1920` | Windows 下 Kotlin 编译守护进程起不来（常见于受限账户、杀软、沙箱） | 加参数 `-Pkotlin.compiler.execution.strategy=in-process` 让编译在 Gradle 进程内跑 |
 
 ### 路径 C：完全不取素材也能跑
 

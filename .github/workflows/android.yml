@@ -29,13 +29,41 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      # 注意：不要用 android-actions/setup-android@v3。
+      # 它内部会执行 `sdkmanager tools`，而老版 SDK Tools 包已从 Google 仓库下架，
+      # 直接报 "Warning: Failed to find package 'tools'" 并以 exit code 1 失败。
+      # 这里改为：复用 runner 预装的 SDK，只补装本项目真正需要的组件。
+      - name: 配置 Android SDK
+        run: |
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          echo "sdk.dir=$SDK" > local.properties
 
+          # cmdline-tools 的目录名带版本号（例如 cmdline-tools/16.0），不能写死；
+          # 用 for + if 而不是 `ls | head`，避免 Actions 默认的 `-eo pipefail` 把空结果当失败
+          SDKMGR=""
+          for p in "$SDK"/cmdline-tools/*/bin/sdkmanager; do
+            if [ -x "$p" ]; then SDKMGR="$p"; break; fi
+          done
+          if [ -z "$SDKMGR" ]; then SDKMGR="$(command -v sdkmanager || true)"; fi
+          echo "sdkmanager => ${SDKMGR:-<not found>}"
+
+          if [ -n "$SDKMGR" ]; then
+            yes | "$SDKMGR" --licenses > /dev/null 2>&1 || true
+            # 已装过就会秒退；装不上时 AGP 也会自行下载（runner 上许可已接受）
+            "$SDKMGR" --sdk_root="$SDK" --install \
+              "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
+          fi
+
+          echo "--- 已安装的平台 ---"
+          ls "$SDK/platforms" 2>/dev/null || true
+          echo "--- 已安装的 build-tools ---"
+          ls "$SDK/build-tools" 2>/dev/null || true
+
+      # 仓库已入库 gradle-wrapper.jar，CI 与本地用同一套 Gradle 8.7
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.7"
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -43,7 +71,9 @@ jobs:
           node-version: "20"
 
       - name: 单元测试（物理层）
-        run: gradle :app:testDebugUnitTest --no-daemon --stacktrace
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace
 
       - name: 转码动画素材
         # 素材「允许开源使用、禁止商用」，所以不入库，构建时现取；失败则回落内置占位宠物
@@ -54,11 +84,11 @@ jobs:
           node tools/verify-assets.mjs || true
 
       - name: 构建 Debug APK（可直接安装）
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
       - name: 构建 Release APK（无 keystore 时未签名）
         continue-on-error: true
-        run: gradle :app:assembleRelease --no-daemon
+        run: ./gradlew :app:assembleRelease --no-daemon --stacktrace
 
       - name: 列出产物
         run: find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
@@ -89,8 +119,8 @@ jobs:
       - name: 重命名并发布
         run: |
           mkdir -p out
-          cp apk/debug/*.apk out/dsh-pet-phone-${{ github.ref_name }}-debug.apk || true
-          cp apk/release/*.apk out/dsh-pet-phone-${{ github.ref_name }}-release-unsigned.apk || true
+          cp apk/debug/*.apk "out/dsh-pet-phone-${GITHUB_REF_NAME}-debug.apk" || true
+          cp apk/release/*.apk "out/dsh-pet-phone-${GITHUB_REF_NAME}-release-unsigned.apk" || true
 
       - uses: softprops/action-gh-release@v2
         with:

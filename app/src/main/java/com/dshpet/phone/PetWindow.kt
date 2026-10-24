@@ -106,7 +106,7 @@ class PetWindow(
         prepareDisplayMask()
         computeSize()
 
-        body.x = (screenW - winW - dp(16) - slot * dp(14)).coerceAtLeast(0f)
+        body.x = (screenW - winW - dp(16) - slot * dp(14)).toFloat().coerceAtLeast(0f)
         body.y = groundY()
 
         params.width = winW
@@ -342,7 +342,7 @@ class PetWindow(
     }
 
     fun jumpHome() {
-        body.x = (screenW - winW - dp(16)).coerceAtLeast(0f)
+        body.x = (screenW - winW - dp(16)).toFloat().coerceAtLeast(0f)
         body.y = groundY()
         body.stop()
         applyLayout(force = true)
@@ -435,6 +435,8 @@ class PetWindow(
         if (u < 0f || u > 1f || v < 0f || v > 1f) return false
         return view.hitTest(u, v)
     }
+
+    private fun dp(v: Int): Int = (v * density).toInt()
 
     companion object {
         const val LONG_PRESS_MS = 460L

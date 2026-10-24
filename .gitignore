@@ -21,3 +21,6 @@ app/src/main/assets/pet/
 # 系统
 .DS_Store
 Thumbs.db
+
+# 本地出包目录（APK 二进制不入库，发版走 GitHub Release）
+dist/

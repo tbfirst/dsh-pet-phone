@@ -1,12 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
 // 可选签名：把 keystore.properties（已 gitignore）放在仓库根目录即可自动启用 release 签名
+// 注意：这里必须用文件顶部 import 的 Properties。写成 java.util.Properties 会与
+// Gradle 的 `java {}` 扩展名冲突，Kotlin DSL 会报 Unresolved reference: util。
 val keystorePropsFile = rootProject.file("keystore.properties")
-val keystoreProps: java.util.Properties? = if (keystorePropsFile.exists()) {
-    java.util.Properties().apply { keystorePropsFile.inputStream().use { load(it) } }
+val keystoreProps: Properties? = if (keystorePropsFile.exists()) {
+    Properties().apply { keystorePropsFile.inputStream().use { load(it) } }
 } else {
     null
 }
