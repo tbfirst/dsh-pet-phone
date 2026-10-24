@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+app/build/
+local.properties
+
+# 签名（绝不入库）
+keystore.properties
+*.jks
+*.keystore
+
+# 素材：上游素材禁止商用，不入库，构建时用 tools/fetch-and-transcode.mjs 现取
+.work/
+app/src/main/assets/pet/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# 系统
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+<resources>
+    <color name="bg">#0C1220</color>
+    <color name="surface">#141C2E</color>
+    <color name="surface_alt">#1B2540</color>
+    <color name="primary">#6FD3F7</color>
+    <color name="primary_dim">#2E6C86</color>
+    <color name="accent">#8B7CFF</color>
+    <color name="text">#E8EEF9</color>
+    <color name="text_dim">#93A4BF</color>
+    <color name="ok">#5BD6A0</color>
+    <color name="warn">#F0B860</color>
+    <color name="ic_launcher_bg">#0C1220</color>
+</resources>

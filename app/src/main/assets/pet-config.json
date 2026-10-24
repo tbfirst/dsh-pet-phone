@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "pack": "default",
+  "note": "素材清单。files 为空时 App 自动使用内置的矢量占位宠物（可直接跑）。运行 tools/fetch-and-transcode.mjs 会从上游 dsh-pet 还原真实动画并重写本文件。",
+  "fps": 15,
+  "canvas": { "w": 480, "h": 270 },
+  "baseWidthDp": 150,
+  "states": {
+    "idle": { "files": [], "loop": true },
+    "tap": { "files": [], "loop": false },
+    "drag": { "files": [], "loop": true },
+    "fling": { "files": [], "loop": false },
+    "walk": { "files": [], "loop": true },
+    "sleep": { "files": [], "loop": true }
+  },
+  "durations": {},
+  "categories": {}
+}

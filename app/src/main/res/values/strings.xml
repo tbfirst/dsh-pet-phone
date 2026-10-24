@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">DSH 桌宠</string>
+    <string name="notif_channel_name">桌宠常驻</string>
+    <string name="notif_channel_desc">显示桌宠正在运行，可快速聊天或收起</string>
+    <string name="notif_title">桌宠在桌面上</string>
+    <string name="notif_text">点一下可以聊天，或把宠物收起来</string>
+    <string name="action_chat">聊天</string>
+    <string name="action_hide">收起</string>
+</resources>

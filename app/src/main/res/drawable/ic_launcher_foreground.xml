@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 尾巴 -->
+    <path
+        android:fillColor="#6FD3F7"
+        android:pathData="M26,52 L10,40 C8,38 6,41 7,44 L11,58 L7,66 C6,69 9,71 11,69 L27,60 Z" />
+    <!-- 身体 -->
+    <path
+        android:fillColor="#6FD3F7"
+        android:pathData="M28,56 C28,41 37,31 50,31 C64,31 73,41 73,56 C73,66 63,73 50,73 C37,73 28,66 28,56 Z" />
+    <!-- 肚皮 -->
+    <path
+        android:fillColor="#CFEFFF"
+        android:pathData="M37,60 C37,51 43,46 50,46 C58,46 64,51 64,60 C64,67 58,71 50,71 C43,71 37,67 37,60 Z" />
+    <!-- 眼睛 -->
+    <path
+        android:fillColor="#0C1220"
+        android:pathData="M41,51 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#0C1220"
+        android:pathData="M55,51 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+</vector>
